@@ -236,6 +236,7 @@ fi
 if [ $RELEASE -eq 0 ];
 then
      CFLAGS="-g -O0"
+     CONFIG_FLAGS="${CONFIG_FLAGS} -d"
 else
      CFLAGS="-g -O2"
 fi
@@ -270,7 +271,7 @@ EXTRA_CXXFLAGS="-std=gnu++11"
 
 case $ARCH in
     le32)
-        EXTRA_LDFLAGS="-L$NACL_SDK_ROOT/lib/pnacl/Release"
+        EXTRA_LDFLAGS="-L$NACL_SDK_ROOT/lib/pnacl/Debug"
         ;;
 esac
 
@@ -464,7 +465,8 @@ CPPFLAGS="$CFLAGS" \
             \
             $MAKE $MAKEFLAGS V=$VERBOSE_MAKE IN_COMPILE_SH=1 BUILD_DIR="${BUILD_DIR}" PNACL="${PNACL}" \
             OPT="${SYSROOT}/bin/pnacl-opt" TRANS="${SYSROOT}/bin/pnacl-translate" \
-            FREEZE="${SYSROOT}/bin/pnacl-freeze" BCCOMPRESS="${SYSROOT}/bin/pnacl-bccompress"\
+            FREEZE="${SYSROOT}/bin/pnacl-freeze" BCCOMPRESS="${SYSROOT}/bin/pnacl-bccompress" \
+            FINAL="${SYSROOT}/bin/pnacl-finalize" STRIP="${SYSROOT}/bin/pnacl-strip" \
             MACHINE=`uname -m` RELEASE=$RELEASE
 checkfail "make failed"
 

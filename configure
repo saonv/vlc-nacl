@@ -41,37 +41,18 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ $CLOBBER_VLC -ne 0 ]
-then
-    msg "git: submodule sync"
-    git submodule sync
+# if [ $CLOBBER_VLC -ne 0 ]
+# then
+#     msg "git: submodule sync"
+#     git submodule sync
 
-    msg "git: submodule init"
-    git submodule init
+#     msg "git: submodule init"
+#     git submodule init
 
-    msg "git: submodule update"
-    git submodule update
-    checkfail "git failed"
-
-    msg "git: submodule foreach sync"
-    git submodule foreach --recursive 'if test -e .gitmodules; then git submodule sync; fi'
-    checkfail "git failed"
-
-    msg "git: submodule foreach update"
-    git submodule update --recursive
-    checkfail "git failed"
-
-    # NB: this is just for the sake of getting the submodule SHA1 values
-    # and status written into the build log.
-    msg "git: submodule status"
-    git submodule status --recursive
-
-    msg "git: submodule clobber"
-    git submodule foreach --recursive git clean -dxf
-    checkfail "git failed"
-    git submodule foreach --recursive git checkout .
-    checkfail "git failed"
-fi
+#     msg "git: submodule update"
+#     git clone https://github.com/saonv/vlc.git vlc
+#     checkfail "git failed"
+# fi
 
 if [ $PATCH_VLC -ne 0 ]
 then

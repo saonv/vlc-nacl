@@ -27,27 +27,36 @@ $(OBJ_DIR)/%.o: %.cpp
 %.a.corrected: %.a
 	@./correct_module_list.sh $<
 	@touch $@;
+	
 
-ifeq ($(PNACL),1)
-$(OBJ_DIR)/vlc.bugged.pexe: $(OBJS)
-	$(CXX) -MP -MD $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io -lc++ -lpthread -lm
+#ifeq ($(PNACL),1)
+# $(OBJ_DIR)/vlc.bugged.pexe: $(OBJS)
+# 	$(CXX) -MP -MD -O2 $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io -lc++ -lpthread -lm
 
-$(BUILD_DIR)/vlc.debug.pexe: $(OBJ_DIR)/vlc.bugged.pexe
-	$(OPT) -S $< | sed s/@memcpy/@__memcpy/g | $(OPT) - -o $@
+# $(BUILD_DIR)/vlc.debug.pexe: $(OBJ_DIR)/vlc.bugged.pexe
+# 	$(OPT) -S $< | sed s/@memcpy/@__memcpy/g | $(OPT) - -o $@
 
-$(BUILD_DIR)/vlc.pexe: $(BUILD_DIR)/vlc.debug.pexe
-	$(STRIP) $< -o $@.tmp1
-	$(FREEZE) $@.tmp1 -o $@.tmp2
-	rm $@.tmp1
-	$(BCCOMPRESS) $@.tmp2 -o $@
-	rm $@.tmp2
+# $(BUILD_DIR)/vlc.pexe: $(BUILD_DIR)/vlc.debug.pexe
+# 	$(STRIP) $< -o $@.tmp1
+# 	$(FREEZE) $@.tmp1 -o $@.tmp2
+# 	rm $@.tmp1
+# 	$(BCCOMPRESS) $@.tmp2 -o $@
+# 	rm $@.tmp2
 
-$(BUILD_DIR)/vlc.nexe: $(BUILD_DIR)/vlc.debug.pexe
-	$(TRANS) -arch $(MACHINE) --allow-llvm-bitcode-input -threads=auto \
-		$(if $(filter $(RELEASE),1),-O3,-O0) $< -o $@
-else
-vlc.pexe:
+# $(BUILD_DIR)/vlc.nexe: $(BUILD_DIR)/vlc.debug.pexe
+# 	$(TRANS) -arch $(MACHINE) --allow-llvm-bitcode-input  -threads=auto \
+# 		$(if $(filter $(RELEASE),1),-O3,-O0) $< -o $@ 
+# else
+$(BUILD_DIR)/vlc.bc: $(OBJS)
+	$(CXX) -MP -MD -g -O0 $^ -o $@ $(LDFLAGS) -lvlc -lvlccore -lcompat -lglibc-compat -lppapi -lppapi_gles2 -lnacl_io -lc++ -lpthread -lm
+$(BUILD_DIR)/vlc_unstriped.pexe: $(BUILD_DIR)/vlc.bc
+	$(FINAL) -o $@ $^
+$(BUILD_DIR)/vlc.pexe: $(BUILD_DIR)/vlc_unstriped.pexe
+	$(STRIP) -o $@ $^
+$(BUILD_DIR)/vlc.nexe: $(BUILD_DIR)/vlc.bc
+	$(TRANS) -arch $(MACHINE) --allow-llvm-bitcode-input  -threads=auto \
+		$(if $(filter $(RELEASE),1),-O3,-O0) $< -o $@ 
 # nothing
 
 
-endif
+#endif
